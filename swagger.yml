@@ -143,12 +143,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeletedTask'
-        '403':
-          description: Task not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvalidTaskDeleteErrorResponse'
         '500':
           description: Internal Server Error
           content:

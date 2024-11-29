@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/BharaniJ27/Task-Management/internal/dto"
+	errorHandler "github.com/BharaniJ27/Task-Management/internal/error"
 	"github.com/BharaniJ27/Task-Management/internal/services"
 	"github.com/BharaniJ27/Task-Management/pkg/constants"
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ import (
 func GetTasks(c *gin.Context) {
 	tasks, err := services.GetAllTasks()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": constants.Internal_Error})
+		errorHandler.ErrorHandler(c, constants.Internal_Error, http.StatusInternalServerError)
 		return
 	}
 	c.JSON(http.StatusOK, tasks)
@@ -41,13 +42,12 @@ func GetTaskById(c *gin.Context) {
 	task, err := services.GetTaskById(taskId)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		message := fmt.Sprintf(constants.Invalid_Task_Fetch, taskId)
-		c.JSON(http.StatusBadRequest, gin.H{"error": message})
+		errorHandler.ErrorHandler(c, constants.Invalid_Task_Fetch, http.StatusBadRequest)
 		return
 	}
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": constants.Internal_Error})
+		errorHandler.ErrorHandler(c, constants.Internal_Error, http.StatusInternalServerError)
 		return
 	}
 
@@ -65,13 +65,13 @@ func CreateTask(c *gin.Context) {
 	var body dto.CreateTaskDTO
 
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": constants.Invalid_Payload})
+		errorHandler.ErrorHandler(c, constants.Invalid_Payload, http.StatusBadRequest)
 		return
 	}
 
 	task, err := services.CreateTask(body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": constants.Internal_Error})
+		errorHandler.ErrorHandler(c, constants.Internal_Error, http.StatusInternalServerError)
 		return
 	}
 	message := fmt.Sprintf(constants.Creation_Success, strconv.Itoa(int(task.ID)))
@@ -92,21 +92,19 @@ func UpdateTask(c *gin.Context) {
 	// Check if the task exists
 	task, err := services.GetTaskById(taskId)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		message := fmt.Sprintf(constants.Invalid_Task_Update, taskId)
-		c.JSON(http.StatusForbidden, gin.H{"error": message})
+		errorHandler.ErrorHandler(c, constants.Invalid_Task_Update, http.StatusForbidden)
 		return
 	}
 
 	// get the task detail from requets payload
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": constants.Invalid_Payload})
+		errorHandler.ErrorHandler(c, constants.Invalid_Payload, http.StatusBadRequest)
 		return
 	}
 
 	_, onUpdateErr := services.UpdateTask(body, &task)
 	if onUpdateErr != nil {
-		fmt.Println(onUpdateErr.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": constants.Internal_Error})
+		errorHandler.ErrorHandler(c, constants.Internal_Error, http.StatusInternalServerError)
 		return
 	}
 	message := fmt.Sprintf(constants.Update_Success, taskId)
@@ -118,7 +116,7 @@ func DeleteTask(c *gin.Context) {
 
 	err := services.DeleteTask(taskId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": constants.Deletion_Failed})
+		errorHandler.ErrorHandler(c, constants.Deletion_Failed, http.StatusInternalServerError)
 		return
 	}
 	message := fmt.Sprintf(constants.Deletion_Success, taskId)
