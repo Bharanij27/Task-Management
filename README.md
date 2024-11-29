@@ -55,8 +55,14 @@ Before you begin, ensure you have the following installed:
     );
     ```
 5. Run the application
-    ```
+    ```shell
     CompileDaemon --build="go build -o main ./cmd" -command="./main"
+    ```
+6. If faced any issue on step 5
+    ```shell
+        go install github.com/githubnemo/CompileDaemon@latest   
+        echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.zshrc   
+        source ~/.zshrc
     ```
 
 # Testing
