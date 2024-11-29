@@ -93,7 +93,7 @@ func UpdateTask(c *gin.Context) {
 	task, err := services.GetTaskById(taskId)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		message := fmt.Sprintf(constants.Invalid_Task_Update, taskId)
-		c.JSON(http.StatusBadRequest, gin.H{"error": message})
+		c.JSON(http.StatusForbidden, gin.H{"error": message})
 		return
 	}
 

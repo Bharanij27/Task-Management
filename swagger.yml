@@ -1,0 +1,276 @@
+openapi: '3.0.3'
+info:
+  title: Task management API
+  version: '1.0'
+servers:
+  - url: http://localhost:3000/api/
+paths:
+
+  /task:
+    post:
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequestPayload'
+      responses:
+        '200':
+          description: Task successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewTask'
+        '400':
+          description: Invalid Request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidTaskSchemaResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+  /tasks:
+
+    get:
+      summary: Fetch all tasks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+  /task/{id}:
+
+    get:
+      summary: Get a task by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the task to retrieve
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidTaskIdErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+    put:
+      summary: update a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the task to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: Task successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatedTask'
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidTaskSchemaResponse'
+        '403':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidTaskUpdateErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+    delete:
+      summary: Delete a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the task to delete
+      responses:
+        '200':
+          description: Task successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedTask'
+        '403':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidTaskDeleteErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        ID:
+          type: integer
+          description: Unique identifier for the task
+          example: 2
+        CreatedAt:
+          type: string
+          format: date-time
+          description: The creation timestamp of the task
+          example: "2024-11-22T16:56:57.729+05:30"
+        UpdatedAt:
+          type: string
+          format: date-time
+          description: The last updated timestamp of the task
+          example: "2024-11-22T16:57:58.577+05:30"
+        DeletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: The timestamp when the task was deleted (if applicable)
+          example: null
+        Title:
+          type: string
+          description: Title of the task
+          example: "GCP"
+        Description:
+          type: string
+          description: Description of the task
+          example: "Complete certification"
+        Status:
+          type: string
+          description: Status of the task
+          example: "critical"
+
+    NewTask:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: "Successfully created a task with id 1"
+    
+    UpdatedTask:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: "Successfully updates a task 1"
+    
+    DeletedTask:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: "Successfully deleted a task 1"
+    
+    TaskRequestPayload:
+      type: object
+      properties:
+        Title:
+          type: string
+          description: Title of the task
+          example: "GCP"
+        Description:
+          type: string
+          description: Description of the task
+          example: "Complete certification"
+        Status:
+          type: string
+          description: Status of the task
+          example: "critical"
+    
+    InvalidTaskIdErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Requested taskId -50 does not exist"
+    
+    InvalidTaskUpdateErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Update failed: Requested taskId -50 does not exists"
+    
+    InvalidTaskDeleteErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Deletion failed: Failed to delete task -50"
+    
+    InvalidTaskSchemaResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid Request payload"
+    
+    InternalErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Server error: Can't process the request please vist after some time"
+
